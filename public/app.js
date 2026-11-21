@@ -277,7 +277,29 @@ function renderDashRequests(requests) {
       </div>`;
     return;
   }
-  container.innerHTML = '<div class="requests-list">' + requests.map(r => renderRequestCard(r, true)).join('') + '</div>';
+  
+container.innerHTML = `
+  <p style="color:var(--text-secondary);margin-bottom:16px;font-size:14px">${donors.length} donor${donors.length !== 1 ? 's' : ''} found</p>
+  <div class="donor-grid">
+    ${donors.map(d => `
+      <div class="donor-card">
+        <div class="donor-header">
+          <div class="donor-avatar">${d.name.charAt(0)}</div>
+          <div>
+            <div class="donor-name">${d.name}</div>
+            <span class="donor-blood">${d.blood_group}</span>
+          </div>
+        </div>
+        <div class="donor-details">
+          <span>📍 ${d.city || 'Unknown location'}</span>
+          ${d.distance !== undefined ? `<span class="donor-distance">📏 ${d.distance} km away</span>` : ''}
+          <span>${d.is_available ? '🟢 Available' : '🔴 Not Available'}</span>
+        </div>
+        <p class="text-secondary">Contact details are shared privately when appropriate.</p>
+      </div>
+    `).join('')}
+  </div>
+`;
 }
 
 function renderDashDonations(donations) {
