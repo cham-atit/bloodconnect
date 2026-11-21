@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BloodConnect - Instant blood and plasma donor connection platform. Find nearby donors, post emergency requests, and save lives in critical moments.">
+  <meta name="keywords" content="blood donor, plasma donor, emergency blood, blood bank, blood donation">
+  <meta name="theme-color" content="#e11d48">
+  <title>BloodConnect - Save Lives Instantly</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩸</text></svg>">
+</head>
+<body>
+  <div id="app">
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+      <div class="navbar-inner">
+        <div class="navbar-brand" onclick="navigate('home')">
+          <div class="navbar-logo">🩸</div>
+          <span class="navbar-title">BloodConnect</span>
+        </div>
+
+        <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">☰</button>
+
+        <ul class="navbar-nav" id="navLinks">
+          <li><button class="nav-link" data-page="home" onclick="navigate('home')"><span class="icon">🏠</span> Home</button></li>
+          <li id="navDashboard" style="display:none"><button class="nav-link" data-page="dashboard" onclick="navigate('dashboard')"><span class="icon">📊</span> Dashboard</button></li>
+          <li><button class="nav-link" data-page="search" onclick="navigate('search')"><span class="icon">🔍</span> Find Donors</button></li>
+          <li><button class="nav-link" data-page="requests" onclick="navigate('requests')"><span class="icon">📋</span> Requests</button></li>
+          <li id="navNotifications" style="display:none"><button class="nav-link" data-page="notifications" onclick="navigate('notifications')"><span class="icon">🔔</span><span class="badge" id="notifBadge" style="display:none">0</span></button></li>
+        </ul>
+
+        <div class="nav-auth" id="navAuth">
+          <!-- Dynamic auth buttons -->
+        </div>
+      </div>
+    </nav>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ═══ HOME PAGE ═══ -->
+    <div class="page active" id="page-home">
+      <div class="container">
+        <section class="hero">
+          <div class="hero-content">
+            <div class="hero-badge">⚡ Real-time Donor Matching</div>
+            <h1 class="hero-title">
+              Every Drop<br>
+              <span class="gradient-text">Saves a Life</span>
+            </h1>
+            <p class="hero-subtitle">
+              Connect with blood &amp; plasma donors instantly during emergencies. 
+              Our platform matches you with nearby compatible donors in seconds.
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-emergency" onclick="navigate('new-request')">
+                🚨 Emergency Request
+              </button>
+              <button class="btn btn-secondary btn-lg" onclick="navigate('search')">
+                🔍 Find Donors
+              </button>
+            </div>
+          </div>
+          <div class="hero-image">
+            <img src="/images/hero-blood.png" alt="Blood Donation Concept" />
+          </div>
+        </section>
+
+        <div class="stats-bar" id="homeStats">
+          <div class="stat-card">
+            <div class="stat-number" id="statDonors">0</div>
+            <div class="stat-label">Registered Donors</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="statRequests">0</div>
+            <div class="stat-label">Requests Fulfilled</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="statCities">12+</div>
+            <div class="stat-label">Cities Covered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="statTime">&lt;5 min</div>
+            <div class="stat-label">Avg. Response Time</div>
+          </div>
+        </div>
+
+        <section class="features-section">
+          <h2 class="section-title">How BloodConnect Works</h2>
+          <p class="section-subtitle">Three simple steps to save a life</p>
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-icon">🆘</div>
+              <h3 class="feature-title">Post an Emergency</h3>
+              <p class="feature-desc">Create a request with blood group, location, and urgency. Critical requests get priority matching.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">📍</div>
+              <h3 class="feature-title">Match Nearby Donors</h3>
+              <p class="feature-desc">Our system instantly finds compatible donors within your area using real-time location matching.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🔔</div>
+              <h3 class="feature-title">Get Instant Alerts</h3>
+              <p class="feature-desc">Matching donors receive real-time notifications and can respond with a single tap. No delays.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🤝</div>
+              <h3 class="feature-title">Connect & Save</h3>
+              <p class="feature-desc">Donors and recipients connect directly with contact details to coordinate the donation quickly.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🧬</div>
+              <h3 class="feature-title">Blood Compatibility</h3>
+              <p class="feature-desc">Smart matching considers blood group compatibility so you always find the right donors for your needs.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🛡️</div>
+              <h3 class="feature-title">Secure & Private</h3>
+              <p class="feature-desc">Your data is encrypted and contact info is only shared when you choose to connect with a donor.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Active Emergency Requests -->
+        <section class="features-section">
+          <h2 class="section-title">🚨 Active Requests</h2>
+          <p class="section-subtitle">People who need your help right now</p>
+          <div class="requests-list" id="homeRequestsList">
+            <div class="loading-overlay"><div class="spinner"></div></div>
+          </div>
+          <div style="text-align: center; margin-top: 24px;">
+            <button class="btn btn-secondary" onclick="navigate('requests')">View All Requests →</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ═══ LOGIN PAGE ═══ -->
+    <div class="page" id="page-login">
+      <div class="container">
+        <div class="auth-container">
+          <div class="auth-card">
+            <div style="text-align:center;font-size:40px;margin-bottom:12px">🩸</div>
+            <h2 class="auth-title">Welcome Back</h2>
+            <p class="auth-subtitle">Sign in to your BloodConnect account</p>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-input" id="loginEmail" placeholder="you@example.com" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="loginPassword" placeholder="Enter password" required>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px" id="loginBtn">Sign In</button>
+            </form>
+            <p class="auth-footer">
+              Don't have an account? <a onclick="navigate('register')">Create one</a>
+            </p>
+            <div class="auth-divider">Demo Login</div>
+            <button class="btn btn-ghost" style="width:100%" onclick="demoLogin()">🔑 Login as Demo User (aarav@demo.com)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ REGISTER PAGE ═══ -->
+    <div class="page" id="page-register">
+      <div class="container">
+        <div class="auth-container">
+          <div class="auth-card">
+            <div style="text-align:center;font-size:40px;margin-bottom:12px">💉</div>
+            <h2 class="auth-title">Join BloodConnect</h2>
+            <p class="auth-subtitle">Register as a donor or recipient</p>
+            <form id="registerForm" onsubmit="handleRegister(event)">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-input" id="regName" placeholder="Your full name" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="regEmail" placeholder="you@example.com" required>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Password</label>
+                  <input type="password" class="form-input" id="regPassword" placeholder="Min 6 chars" minlength="6" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Phone</label>
+                  <input type="tel" class="form-input" id="regPhone" placeholder="+91-XXXXXXXXXX" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Blood Group</label>
+                <div class="blood-group-grid" id="regBloodGrid">
+                  <div class="blood-group-option" data-value="A+" onclick="selectBloodGroup(this,'regBloodGrid')">A+</div>
+                  <div class="blood-group-option" data-value="A-" onclick="selectBloodGroup(this,'regBloodGrid')">A-</div>
+                  <div class="blood-group-option" data-value="B+" onclick="selectBloodGroup(this,'regBloodGrid')">B+</div>
+                  <div class="blood-group-option" data-value="B-" onclick="selectBloodGroup(this,'regBloodGrid')">B-</div>
+                  <div class="blood-group-option" data-value="AB+" onclick="selectBloodGroup(this,'regBloodGrid')">AB+</div>
+                  <div class="blood-group-option" data-value="AB-" onclick="selectBloodGroup(this,'regBloodGrid')">AB-</div>
+                  <div class="blood-group-option" data-value="O+" onclick="selectBloodGroup(this,'regBloodGrid')">O+</div>
+                  <div class="blood-group-option" data-value="O-" onclick="selectBloodGroup(this,'regBloodGrid')">O-</div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Role</label>
+                  <select class="form-select" id="regRole">
+                    <option value="both">Donor & Recipient</option>
+                    <option value="donor">Donor Only</option>
+                    <option value="recipient">Recipient Only</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">City</label>
+                  <input type="text" class="form-input" id="regCity" placeholder="Your city">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px" id="regBtn">Create Account</button>
+            </form>
+            <p class="auth-footer">
+              Already have an account? <a onclick="navigate('login')">Sign in</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ DASHBOARD PAGE ═══ -->
+    <div class="page" id="page-dashboard">
+      <div class="container">
+        <div class="dashboard-header">
+          <div class="dashboard-greeting">
+            <h2 id="dashGreeting">Welcome back!</h2>
+            <p id="dashSubtitle">Here's your donor overview</p>
+          </div>
+          <button class="btn btn-emergency" onclick="navigate('new-request')">🚨 New Request</button>
+        </div>
+
+        <div class="availability-toggle" id="availabilitySection">
+          <label class="toggle-switch">
+            <input type="checkbox" id="availToggle" onchange="toggleAvailability()">
+            <span class="toggle-slider"></span>
+          </label>
+          <div>
+            <div class="toggle-label" id="availLabel">Available for Donation</div>
+            <div class="toggle-desc">Toggle your availability to receive matching requests</div>
+          </div>
+        </div>
+
+        <div class="availability-toggle" id="backupSection" style="margin-top: 16px;">
+          <div style="font-size: 24px; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: rgba(255, 255, 255, 0.05); border-radius: 50%;">👥</div>
+          <div>
+            <div class="toggle-label">Emergency Backup Donors</div>
+            <div class="toggle-desc">You have <strong>2 backup donors</strong> matched securely. If you miss an urgent request, they will be notified instantly.</div>
+            <button class="btn btn-ghost btn-sm" style="margin-top:8px; padding:4px 8px; border: 1px solid var(--border-default);" onclick="showToast('Manage Contacts', 'Backup contacts management will be unlocked in the next protocol version.', 'info')">Manage Backups</button>
+          </div>
+        </div>
+
+        <div class="dashboard-stats" id="dashStats">
+          <div class="dash-stat">
+            <div class="dash-stat-icon red">🩸</div>
+            <div>
+              <div class="dash-stat-value" id="dashDonations">0</div>
+              <div class="dash-stat-label">Donations</div>
+            </div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-icon green">✅</div>
+            <div>
+              <div class="dash-stat-value" id="dashPending">0</div>
+              <div class="dash-stat-label">Pending Offers</div>
+            </div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-icon amber">📤</div>
+            <div>
+              <div class="dash-stat-value" id="dashMyRequests">0</div>
+              <div class="dash-stat-label">My Requests</div>
+            </div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-icon blue">🩹</div>
+            <div>
+              <div class="dash-stat-value" id="dashBloodGroup">-</div>
+              <div class="dash-stat-label">Blood Group</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" onclick="switchDashTab('myRequests',this)">My Requests</button>
+          <button class="tab" onclick="switchDashTab('myDonations',this)">My Donations</button>
+        </div>
+
+        <div id="dashTabContent">
+          <div class="requests-list" id="dashMyRequestsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SEARCH PAGE ═══ -->
+    <div class="page" id="page-search">
+      <div class="container">
+        <div class="search-header">
+          <h2 class="section-title">🔍 Find Blood Donors</h2>
+          <p class="section-subtitle">Search by blood group and location</p>
+        </div>
+
+        <div class="search-bar">
+          <select class="form-select" id="searchBlood" style="max-width:160px">
+            <option value="">All Blood Groups</option>
+            <option value="A+">A+</option><option value="A-">A-</option>
+            <option value="B+">B+</option><option value="B-">B-</option>
+            <option value="AB+">AB+</option><option value="AB-">AB-</option>
+            <option value="O+">O+</option><option value="O-">O-</option>
+          </select>
+          <input type="text" class="form-input" id="searchCity" placeholder="City (e.g. New Delhi)">
+          <button class="btn btn-primary" onclick="searchDonors()">🔍 Search</button>
+          <button class="btn btn-ghost" onclick="searchNearby()" title="Use my location">📍 Near Me</button>
+        </div>
+
+        <div id="searchResults">
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-title">Search for Donors</div>
+            <div class="empty-desc">Select a blood group or city to find available donors near you</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ REQUESTS LIST PAGE ═══ -->
+    <div class="page" id="page-requests">
+      <div class="container">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+          <div>
+            <h2 class="section-title" style="text-align:left">📋 Blood Requests</h2>
+            <p class="section-subtitle" style="text-align:left;margin-bottom:0">Active requests from people who need help</p>
+          </div>
+          <button class="btn btn-emergency" onclick="navigate('new-request')">🚨 New Request</button>
+        </div>
+
+        <div class="search-bar" style="margin-bottom:20px">
+          <select class="form-select" id="filterBlood" onchange="loadRequests()" style="max-width:160px">
+            <option value="">All Blood Groups</option>
+            <option value="A+">A+</option><option value="A-">A-</option>
+            <option value="B+">B+</option><option value="B-">B-</option>
+            <option value="AB+">AB+</option><option value="AB-">AB-</option>
+            <option value="O+">O+</option><option value="O-">O-</option>
+          </select>
+          <select class="form-select" id="filterStatus" onchange="loadRequests()" style="max-width:160px">
+            <option value="active">Active</option>
+            <option value="fulfilled">Fulfilled</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="requests-list" id="requestsList">
+          <div class="loading-overlay"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ NEW REQUEST PAGE ═══ -->
+    <div class="page" id="page-new-request">
+      <div class="container">
+        <div class="request-form-container">
+          <h2 class="section-title">🚨 Create Emergency Request</h2>
+          <p class="section-subtitle">Fill in the details below. Matching donors will be notified instantly.</p>
+
+          <div class="card" style="margin-top:24px">
+            <form id="requestForm" onsubmit="handleCreateRequest(event)">
+              <div class="form-group">
+                <label class="form-label">Urgency Level</label>
+                <div class="urgency-selector" id="urgencySelector">
+                  <div class="urgency-option critical" data-value="critical" onclick="selectUrgency(this)">
+                    <span class="urgency-emoji">🚨</span> Critical
+                  </div>
+                  <div class="urgency-option urgent selected urgent" data-value="urgent" onclick="selectUrgency(this)">
+                    <span class="urgency-emoji">⚠️</span> Urgent
+                  </div>
+                  <div class="urgency-option normal" data-value="normal" onclick="selectUrgency(this)">
+                    <span class="urgency-emoji">ℹ️</span> Normal
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Blood Group Needed</label>
+                <div class="blood-group-grid" id="reqBloodGrid">
+                  <div class="blood-group-option" data-value="A+" onclick="selectBloodGroup(this,'reqBloodGrid')">A+</div>
+                  <div class="blood-group-option" data-value="A-" onclick="selectBloodGroup(this,'reqBloodGrid')">A-</div>
+                  <div class="blood-group-option" data-value="B+" onclick="selectBloodGroup(this,'reqBloodGrid')">B+</div>
+                  <div class="blood-group-option" data-value="B-" onclick="selectBloodGroup(this,'reqBloodGrid')">B-</div>
+                  <div class="blood-group-option" data-value="AB+" onclick="selectBloodGroup(this,'reqBloodGrid')">AB+</div>
+                  <div class="blood-group-option" data-value="AB-" onclick="selectBloodGroup(this,'reqBloodGrid')">AB-</div>
+                  <div class="blood-group-option" data-value="O+" onclick="selectBloodGroup(this,'reqBloodGrid')">O+</div>
+                  <div class="blood-group-option" data-value="O-" onclick="selectBloodGroup(this,'reqBloodGrid')">O-</div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Component</label>
+                  <select class="form-select" id="reqComponent">
+                    <option value="whole_blood">Whole Blood</option>
+                    <option value="plasma">Plasma</option>
+                    <option value="platelets">Platelets</option>
+                    <option value="rbc">Red Blood Cells</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Units Needed <span style="font-size:11px; font-weight:400; text-transform:none; letter-spacing:0; color:var(--text-muted);">(1 unit = 350-450ml)</span></label>
+                  <input type="number" class="form-input" id="reqUnits" value="1" min="1" max="10">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Hospital Name</label>
+                <input type="text" class="form-input" id="reqHospital" placeholder="E.g. AIIMS, Apollo Hospital">
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">City</label>
+                  <input type="text" class="form-input" id="reqCity" placeholder="Hospital city">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Contact Phone</label>
+                  <input type="tel" class="form-input" id="reqPhone" placeholder="+91-XXXXXXXXXX">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Additional Notes</label>
+                <textarea class="form-input" id="reqNotes" rows="3" placeholder="Any additional details (patient info, specific requirements...)"></textarea>
+              </div>
+
+              <div style="display:flex;gap:12px;margin-top:8px">
+                <button type="submit" class="btn btn-emergency" style="flex:1" id="reqSubmitBtn">🚨 Submit Emergency Request</button>
+                <button type="button" class="btn btn-secondary" onclick="navigate('requests')">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ REQUEST DETAIL PAGE ═══ -->
+    <div class="page" id="page-request-detail">
+      <div class="container">
+        <div class="detail-section" id="requestDetail">
+          <div class="loading-overlay"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ NOTIFICATIONS PAGE ═══ -->
+    <div class="page" id="page-notifications">
+      <div class="container">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+          <h2 class="section-title" style="text-align:left;margin-bottom:0">🔔 Notifications</h2>
+          <button class="btn btn-ghost btn-sm" onclick="markAllRead()">Mark all read</button>
+        </div>
+        <div class="notif-list" id="notifList">
+          <div class="loading-overlay"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>🩸 <strong>BloodConnect</strong> — Saving lives, one drop at a time.</p>
+        <p style="margin-top:8px">Built with ❤️ for humanity. Every second counts in an emergency.</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
